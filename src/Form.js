@@ -31,6 +31,17 @@ const NewUserForm =( { values, errors, touched, status }) => {
         {touched.password && errors.password && (
           <p className="error">{errors.password}</p>
         )}
+        <Field component="select" className="find" name="find">
+          <option>How did you hear about us?</option>
+          <option value="Facebook">Facebook</option>
+          <option value="Instagram">Instagram</option>
+          <option value="Twitter">Twitter</option>
+          <option value="Other">Other...</option>
+        </Field>
+
+
+
+
        <label className="checkboxContainer">
         <Field type="checkbox" name="tos" checked={values.tos} className="checkbox"/>
                     Accept Terms
