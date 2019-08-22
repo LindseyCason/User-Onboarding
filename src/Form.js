@@ -1,22 +1,56 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { withFormik, Form, Field } from "formik";
 import axios from "axios"
 import * as Yup from "yup";
 
 
-function NewUserForm( { values, errors, isSubmitting }) {
-    console.log(values.email)
+const NewUserForm =( { values, errors, touched, status }) => {
+///this portion is to render the results on the screen
+    const [users, setUsers] = useState([]);
+    useEffect(() => {
+      if (status) {
+        setUsers([...users, status]);
+      }
+    }, [status]); //if changed to [users] this will not work
+
+//////////
+///this portion of code is the actual form and fields, pay attention to capitalization
     return (
-      <Form>
-          <Field type="name" name="name" placeholder="Full Name" />
+        <div className="user-form">
+            <div className="enter-to-win">ENTER TO WIN</div>
+      <Form className="form-field-container">
+        <Field type="name" name="name" placeholder="Full Name" />
+        {touched.name && errors.name && (
+          <p className="error">{errors.name}</p>
+        )}
         <Field type="email" name="email" placeholder="Email" />
+        {touched.email && errors.email && (
+          <p className="error">{errors.email}</p>
+        )}
         <Field type="password" name="password" placeholder="Password" />
-       <label>
-        <Field type="checkbox" name="tos" checked={values.tos} />
+        {touched.password && errors.password && (
+          <p className="error">{errors.password}</p>
+        )}
+       <label className="checkboxContainer">
+        <Field type="checkbox" name="tos" checked={values.tos} className="checkbox"/>
                     Accept Terms
         </label>
-        <button type="submit" disabled={isSubmitting}>Submit!</button>
+
+        <button type="submit">Submit!</button>
       </Form>
+
+      {/* This portion of code is ALSO needed to render the results to the screen.  */}
+{users.map(user => (
+    <ul key={user.id}>
+      <li>Name: {user.name}</li>
+      <li>Email: {user.email}</li>
+      
+    </ul>
+  ))}
+
+
+
+      </div>
     );
   }
 
@@ -28,7 +62,7 @@ function NewUserForm( { values, errors, isSubmitting }) {
         name: name || "",
         email: email || "",
         password: password || "",
-        tos: tos || false,
+        tos: tos || false
 
       };
     },
@@ -41,25 +75,21 @@ function NewUserForm( { values, errors, isSubmitting }) {
           .email("Email not valid")
           .required("Email is required"),
         password: Yup.string()
-          .min(8, "Password must be at least 8 characters")
           .required("Password is required")
       }),
   //end validation
 
 
-    handleSubmit(values, { resetForm, setErrors, setSubmitting }) {
-        if (values.email === "hello@world.com"){
-            setErrors({ email: "That email is taken"})
-        } else {
-            axios
-            .post("https://reqres.in/api/users_", values)
+    handleSubmit(values, { setStatus }) {
+            axios.post("https://reqres.in/api/users/", values)
             .then(response=>{
                 console.log(response);
-                resetForm();
-                setSubmitting(false);
-            });
+                setStatus(response.data);
+            
+            })
+            .catch(err => console.log(err.response));
         }
     }
-  })(NewUserForm);
+  )(NewUserForm);
   
   export default FormikNewUserForm;
